@@ -1,3 +1,5 @@
+#final project uses dataset2, model3 -> renewed down motion, epoch 85, seq_length 30
+
 import cv2
 import mediapipe as mp
 import numpy as np
@@ -9,10 +11,10 @@ target = random.randrange(-15, 15)
 actions = ['up', 'down', 'stop']
 seq_length = 30
 
-cur_score = random.randrange(-15, 15)
+cur_score = 0
 diff_score = 1
 
-model = load_model('models/model1.h5')
+model = load_model('models/model3.h5')
 
 # MediaPipe hands model
 mp_hands = mp.solutions.hands
@@ -71,8 +73,9 @@ while cap.isOpened():
             input_data = np.expand_dims(np.array(seq[-seq_length:], dtype=np.float32), axis=0)  # expand datas
 
             y_pred = model.predict(input_data).squeeze()
-
-            i_pred = int(np.argmax(y_pred))  # indice (index) of the prediction
+            print(y_pred)
+            i_pred = int(np.argmax(y_pred))  # max  (index) of the prediction
+            print(i_pred, 'action index')
             conf = y_pred[i_pred]
 
             if conf < 0.9:
@@ -85,7 +88,7 @@ while cap.isOpened():
                 continue
 
             this_action = '?'
-            if action_seq[-1] == action_seq[-2]:  # if last 3 motions are same
+            if action_seq[-1] == action_seq[-2]:  # if last 2 motions are same
                 this_action = action
 
             if cur_score != target:
@@ -118,6 +121,6 @@ while cap.isOpened():
     if cv2.waitKey(1) == ord('q'):
         break
     elif cv2.waitKey(1) == ord('r'):
-        cur_score = random.randrange(-15, 15)
-        target = random.randrange(-15, 15)
-        cv2.waitKey(3000)
+        cur_score = 0
+        target = random.randrange(-20, 20)
+        cv2.waitKey(6000)
